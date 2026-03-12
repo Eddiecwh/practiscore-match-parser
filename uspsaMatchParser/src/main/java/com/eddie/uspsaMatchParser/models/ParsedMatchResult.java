@@ -11,4 +11,5 @@ public class ParsedMatchResult {
     private List<Stage> stages;
     private List<Competitor> competitors;
     private List<StageScore> stageScores;
+    private List<MatchEntry> matchEntries;
 }

@@ -1,27 +1,15 @@
 package com.eddie.uspsaMatchParser.util;
 
 import com.eddie.uspsaMatchParser.models.*;
-import com.eddie.uspsaMatchParser.repository.CompetitorRepo;
-import com.eddie.uspsaMatchParser.repository.MatchRepo;
-import com.eddie.uspsaMatchParser.repository.StageRepo;
-import com.eddie.uspsaMatchParser.repository.StageScoreRepo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class MatchParser {
     Match match = new Match();
+    List<MatchEntry> matchEntries = new ArrayList<>();
     List<Competitor> competitors = new ArrayList<>();
     List<Stage> stages = new ArrayList<>();
     List<StageScore> stageScores = new ArrayList<>();
@@ -55,6 +43,12 @@ public class MatchParser {
         result.setStages(stages);
         result.setCompetitors(competitors);
         result.setStageScores(stageScores);
+
+        List<MatchEntry> sortedMatchEntries = matchEntries.stream()
+                        .sorted(Comparator.comparing(MatchEntry::getMatchPoints)
+                        .reversed()).toList();
+
+        result.setMatchEntries(sortedMatchEntries);
 
         return result;
     }
@@ -100,11 +94,20 @@ public class MatchParser {
         int sequenceNumber = Integer.parseInt(parts[0].replace("E ", "").trim());
 
         Competitor competitor = new Competitor();
+        MatchEntry matchEntry = new MatchEntry();
 
         competitor.setFirstName(parts[2].trim());
         competitor.setLastName(parts[3].trim());
         competitor.setUspsaMemberNumber(parts[1].trim());
 
+        matchEntry.setMatch(match);
+        matchEntry.setCompetitor(competitor);
+        matchEntry.setDivision(parts[9].trim());
+        matchEntry.setClassification(parts[8].trim());
+        matchEntry.setMatchPoints(Double.parseDouble(parts[10]));
+        matchEntry.setPlaceDivision(Integer.parseInt(parts[11].trim()));
+
+        matchEntries.add(matchEntry);
 
         competitors.add(competitor);
         competitorMap.put(sequenceNumber, competitor);
