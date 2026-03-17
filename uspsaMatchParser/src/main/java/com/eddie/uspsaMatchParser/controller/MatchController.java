@@ -3,8 +3,10 @@ package com.eddie.uspsaMatchParser.controller;
 import com.eddie.uspsaMatchParser.models.Competitor;
 import com.eddie.uspsaMatchParser.models.Match;
 import com.eddie.uspsaMatchParser.service.MatchService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,5 +37,10 @@ public class MatchController {
     @PostMapping("/upload")
     ResponseEntity<String> uploadMatch(@RequestParam("file") MultipartFile file) {
         return matchService.parseMatch(file);
+    }
+
+    @GetMapping("/csrf-token")
+    public CsrfToken getCSRFToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 }
